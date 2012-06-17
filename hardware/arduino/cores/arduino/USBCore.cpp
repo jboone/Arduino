@@ -636,9 +636,15 @@ USBDevice_::USBDevice_()
 void USBDevice_::attach()
 {
 	_usbConfiguration = 0;
+#if defined(UHWCON)
 	UHWCON = 0x01;						// power internal reg
+#endif
 	USBCON = (1<<USBE)|(1<<FRZCLK);		// clock frozen, usb enabled
+#if defined(PINDIV)
 	PLLCSR = 0x12;						// Need 16 MHz xtal
+#elif defined(PLLP0)
+	PLLCSR = ((1<<PLLP0)|(1<<PLLE));	// Need 16 MHz xtal
+#endif
 	while (!(PLLCSR & (1<<PLOCK)))		// wait for lock pll
 		;
 
@@ -647,7 +653,11 @@ void USBDevice_::attach()
 	// port touch at 1200 bps. This delay fixes this behaviour.
 	delay(1);
 
+#if defined(OTGPADE)
 	USBCON = ((1<<USBE)|(1<<OTGPADE));	// start USB clock
+#else
+	USBCON = (1<<USBE);					// start USB clock
+#endif
 	UDIEN = (1<<EORSTE)|(1<<SOFE);		// Enable interrupts for EOR (End of Reset) and SOF (start of frame)
 	UDCON = 0;							// enable attach resistor
 	
