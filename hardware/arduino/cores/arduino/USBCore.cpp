@@ -347,7 +347,11 @@ void InitEndpoints()
 		UECFG0X = pgm_read_byte(_initEndpoints+i);
 		UECFG1X = EP_DOUBLE_64;
 	}
+#if defined(EPRST6)
 	UERST = 0x7E;	// And reset them
+#else
+	UERST = 0x1E;	// And reset them
+#endif
 	UERST = 0;
 }
 
