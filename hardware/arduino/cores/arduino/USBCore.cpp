@@ -32,8 +32,12 @@
 
 /** Pulse generation counters to keep track of the number of milliseconds remaining for each pulse type */
 #define TX_RX_LED_PULSE_MS 100
+#if defined(TXLED1)
 volatile u8 TxLEDPulse; /**< Milliseconds remaining for data Tx LED pulse */
+#endif
+#if defined(RXLED1)
 volatile u8 RxLEDPulse; /**< Milliseconds remaining for data Rx LED pulse */
+#endif
 
 //==================================================================
 //==================================================================
@@ -117,15 +121,18 @@ void Recv(volatile u8* data, u8 count)
 {
 	while (count--)
 		*data++ = UEDATX;
-	
+#if defined(RXLED1)
 	RXLED1;					// light the RX LED
-	RxLEDPulse = TX_RX_LED_PULSE_MS;	
+	RxLEDPulse = TX_RX_LED_PULSE_MS;
+#endif
 }
 
 static inline u8 Recv8()
 {
+#if defined(RXLED1)
 	RXLED1;					// light the RX LED
 	RxLEDPulse = TX_RX_LED_PULSE_MS;
+#endif
 
 	return UEDATX;	
 }
@@ -304,8 +311,10 @@ int USB_Send(u8 ep, const void* d, int len)
 				ReleaseTX();
 		}
 	}
+#if defined(TXLED1)
 	TXLED1;					// light the TX LED
 	TxLEDPulse = TX_RX_LED_PULSE_MS;
+#endif
 	return r;
 }
 
@@ -612,10 +621,14 @@ ISR(USB_GEN_vect)
 #endif
 		
 		// check whether the one-shot period has elapsed.  if so, turn off the LED
+#if defined(TXLED0)
 		if (TxLEDPulse && !(--TxLEDPulse))
 			TXLED0;
+#endif
+#if defined(RXLED0)
 		if (RxLEDPulse && !(--RxLEDPulse))
 			RXLED0;
+#endif
 	}
 }
 
@@ -664,8 +677,9 @@ void USBDevice_::attach()
 #endif
 	UDIEN = (1<<EORSTE)|(1<<SOFE);		// Enable interrupts for EOR (End of Reset) and SOF (start of frame)
 	UDCON = 0;							// enable attach resistor
-	
+#if defined(TX_RX_LED_INIT)	
 	TX_RX_LED_INIT;
+#endif
 }
 
 void USBDevice_::detach()
