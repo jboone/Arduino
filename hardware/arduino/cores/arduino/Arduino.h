@@ -168,6 +168,7 @@ extern const uint8_t PROGMEM digital_pin_to_timer_PGM[];
 #define TIMER0B 2
 #define TIMER1A 3
 #define TIMER1B 4
+#define TIMER1C 5
 #define TIMER2  5
 #define TIMER2A 6
 #define TIMER2B 7
